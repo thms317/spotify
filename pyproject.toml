@@ -1,0 +1,42 @@
+[project]
+name="spotify"
+requires-python = ">=3.12"
+version = "0.0.1"
+description = "Get the Spotify stats."
+classifiers = ["Programming Language :: Python :: 3.12", "Operating System :: OS Independent"]
+readme = "README.md"
+dynamic = ["dependencies", "optional-dependencies"]
+
+[build-system]
+requires = ["wheel>=0.40.0", "setuptools>=68.2.2", "toml>=0.10.2"]
+build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+select = ["ALL"]
+ignore = [
+    "D203",     # "One blank line required before class docstring." Should be disabled by default.
+    "D213",     # "Multi-line docstring summary should start at the second line." Should be disabled by default.
+    "S101",     # "Use of `assert` detected." Used quite often in tests.
+    "FBT001",   # "Boolean positional arg in function definition." I sometimes use this.
+    "FBT002",   # "Boolean default value in function definition." I sometimes use this too.
+    "ERA001",   # "Found commented out code." I comment out code sometimes
+    "E731",     # "Do not assign a lambda expression, use a def." Needed for spark udfs.
+    "T201",     # "`print` found." I sometimes print stuff.
+    # formatter-specific exceptions
+    "COM812",   # "Missing trailing comma." Ignored since it conflicts with the formatter.
+    "ISC001",   # "Implicit string concatenation." Ignored since it conflicts with the formatter.
+    # project-specific exceptions
+]
+namespace-packages = ["./notebooks/"]
+extend-include = ["*.ipynb"]
+
+[tool.ruff.pydocstyle]
+convention = "numpy"
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+ignore_missing_imports = true
+disallow_untyped_decorators = false

@@ -1,0 +1,32 @@
+name: check_python_packaging
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - ".github/workflows/check_python_packaging.yml"
+      - "src/**"
+      - "setup.py"
+      - "MANIFEST.in"
+
+jobs:
+  check_python_packaging:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+      - name: Install package dependencies
+        run: |
+          python -m pip install --upgrade pip toml
+          python -m pip install -r requirements/release.txt
+      - name: Package spotify
+        run: python -m build
+      - name: Unpack the generated package
+        run: tar -xvzf dist/spotify*.tar.gz
+      - name: Compare contents with the repo folder
+        run: |
+          diff -r -x __pycache__ spotify/ spotify-*/spotify

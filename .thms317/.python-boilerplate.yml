@@ -1,0 +1,10 @@
+# This file tracks the version of this project's boilerplate files. It's
+# managed by Copier. Do NOT modify this file manually. See the repository
+# at `_src_path` for details and project update instructions.
+_commit: v0.0.1
+_src_path: git@github.com:thms317/python-boilerplate-personal.git
+include_vscode_settings: true
+package_description: Get the Spotify stats.
+project_name: spotify
+python_version: '3.12'
+

@@ -1,0 +1,34 @@
+name: block_fixups
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+jobs:
+  block_fixups:
+    name: block fixup! commits
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: block fixup! commits
+        run: |
+          BASE=$(jq -r '.pull_request.base.ref' $GITHUB_EVENT_PATH)
+          CURRENT=$(jq -r '.pull_request.head.ref' $GITHUB_EVENT_PATH)
+          if [[ -z "$BASE" || -z "$CURRENT" ]]; then
+            echo "Could not extract BASE or CURRENT branch names."
+            exit 1
+          fi
+          FIXUP_COUNT=`git log --pretty=format:%s origin/$BASE..origin/$CURRENT | grep -c fixup! || echo 0`
+          echo "Merge $CURRENT into $BASE with $FIXUP_COUNT fixup! commits"
+          if [ "$FIXUP_COUNT" -gt 0 ]; then
+            git log --pretty=format:%s origin/$BASE..origin/$CURRENT | grep fixup!
+            exit 1
+          fi
+          REJ_COUNT=`git diff --name-only origin/$BASE origin/$CURRENT | grep -c .rej || echo 0`
+          echo "Merge $CURRENT into $BASE with $REJ_COUNT .rej files"
+          if [ "$REJ_COUNT" -gt 0 ]; then
+            git diff --name-only origin/$BASE origin/$CURRENT | grep .rej
+            exit 1
+          fi
