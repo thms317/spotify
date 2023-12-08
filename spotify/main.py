@@ -8,7 +8,7 @@ import pandas as pd
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 
-from src.utils import load_credentials
+from spotify.utils import load_credentials
 
 
 def export_to_json(data: dict[Any, Any] | list[dict[Any, Any]], name: str) -> None:
