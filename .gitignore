@@ -180,3 +180,6 @@ pyrightconfig.json
 
 # ignore VSCode settings
 .vscode/
+
+# ignore config files
+config.ini
