@@ -80,7 +80,7 @@ def fetch_track_details(sp: Spotify, track: dict[Any, Any]) -> dict[str, Any]:
     # Fetch artist URIs
     artists_uri_list = [artist["uri"] for artist in track["track"]["artists"]]
     # Build list of nested dictionaries with artist details
-    artists = []
+    artists_nested = []
     for artist_uri in artists_uri_list:
         artist = {
             "name": sp.artist(artist_uri)["name"],
@@ -88,22 +88,23 @@ def fetch_track_details(sp: Spotify, track: dict[Any, Any]) -> dict[str, Any]:
             "popularity": sp.artist(artist_uri)["popularity"],
         }
         # Append artist to list of dictionaries
-        artists.append(artist)
-    # Create artists label
-    artists_list = [artist["name"] for artist in artists]
-    artists_label = ", ".join(artists_list)
-    # Calculate average artist popularity
-    artists_popularity = np.mean([artist["popularity"] for artist in artists])
+        artists_nested.append(artist)
+    # Build artists columns
+    artists_genres = [artist["genres"] for artist in artists_nested]
+    artists_popularities = [artist["popularity"] for artist in artists_nested]
+    artists_names = [artist["name"] for artist in artists_nested]
+    artists = ", ".join(artists_names)
+    artists_avg_popularity = np.mean([artist["popularity"] for artist in artists_nested])
     # Fetch audio features
     audio_features = sp.audio_features(track_uri)[0]
     # Fetch user details
     user_details = sp.user(track["added_by"]["id"])
     # Print track details
-    print(f"Fetching details for: {track['track']['name']} - {artists_label}")
+    print(f"Fetching details for: {track['track']['name']} - {artists}")
     # Build the stats dictionary
     return {
         "name": track["track"]["name"],
-        "artist": artists_label,
+        "artist": artists,
         "album": track["track"]["album"]["name"],
         "album_type": track["track"]["album"]["album_type"],
         "release_date": track["track"]["album"]["release_date"],
@@ -111,7 +112,7 @@ def fetch_track_details(sp: Spotify, track: dict[Any, Any]) -> dict[str, Any]:
         "added_at": track["added_at"],
         "added_by": user_details["display_name"],
         "track_popularity": track["track"]["popularity"],
-        "avg_artist_popularity": artists_popularity,
+        "artist_avg_popularity": artists_avg_popularity,
         "danceability": audio_features["danceability"],
         "energy": audio_features["energy"],
         "key": audio_features["key"],
@@ -125,7 +126,9 @@ def fetch_track_details(sp: Spotify, track: dict[Any, Any]) -> dict[str, Any]:
         "tempo": audio_features["tempo"],
         "time_signature": audio_features["time_signature"],
         "track_id": track["track"]["id"],
-        "artists": artists,
+        "artist_names": artists_names,
+        "artist_genres": artists_genres,
+        "artist_popularities": artists_popularities,
     }
 
 

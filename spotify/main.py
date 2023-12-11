@@ -5,6 +5,7 @@ from spotipy.oauth2 import SpotifyClientCredentials
 from utils import (
     calculate_first_playlist_track_overlap_percentage,
     calculate_total_overlap_percentage,
+    fetch_playlist_details,
     load_credentials,
 )
 
@@ -23,8 +24,8 @@ def main() -> None:
     playlist_uri = "https://open.spotify.com/playlist/2flYqzsxSNSIHjCNCphCMw?si=6408cf90576944be"
 
     # Fetch playlist details
-    # df_playlist = fetch_playlist_details(sp, playlist_uri)
-    # df_playlist.to_csv("./data/playlist_stats.csv", index=False)
+    df_playlist = fetch_playlist_details(sp, playlist_uri)
+    df_playlist.to_csv("./data/playlist_stats.csv", index=False)
 
     # Compare playlists
     total_overlap = calculate_total_overlap_percentage(

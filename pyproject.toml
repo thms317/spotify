@@ -1,9 +1,9 @@
 [project]
 name="spotify"
-requires-python = ">=3.12"
+requires-python = ">=3.11"
 version = "0.0.1"
 description = "Get the Spotify stats."
-classifiers = ["Programming Language :: Python :: 3.12", "Operating System :: OS Independent"]
+classifiers = ["Programming Language :: Python :: 3.11", "Operating System :: OS Independent"]
 readme = "README.md"
 dynamic = ["dependencies", "optional-dependencies"]
 
@@ -16,6 +16,7 @@ target-version = "py311"
 line-length = 100
 select = ["ALL"]
 ignore = [
+    "D100",     # "Missing docstring in public module." This gets a bit annoying.
     "E501",     # "Line too long." sometimes I need to go over 100 characters in docstrings.
     "D203",     # "One blank line required before class docstring." Should be disabled by default.
     "D213",     # "Multi-line docstring summary should start at the second line." Should be disabled by default.

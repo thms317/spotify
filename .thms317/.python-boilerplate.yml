@@ -6,5 +6,4 @@ _src_path: git@github.com:thms317/python-boilerplate-personal.git
 include_vscode_settings: true
 package_description: Get the Spotify stats.
 project_name: spotify
-python_version: '3.12'
-
+python_version: "3.11"
