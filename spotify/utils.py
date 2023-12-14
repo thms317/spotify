@@ -109,6 +109,7 @@ def fetch_track_details(sp: Spotify, track: dict[Any, Any]) -> dict[str, Any]:
         "album_type": track["track"]["album"]["album_type"],
         "release_date": track["track"]["album"]["release_date"],
         "duration": transform_track_duration(track["track"]["duration_ms"]),
+        "duration_ms": track["track"]["duration_ms"],
         "added_at": track["added_at"],
         "added_by": user_details["display_name"],
         "track_popularity": track["track"]["popularity"],

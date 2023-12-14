@@ -2,17 +2,30 @@ import ast
 from collections import Counter
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
+import plotly.express as px
+import plotly.graph_objs as go
 from IPython.display import display
 from wordcloud import WordCloud
 
 
-def show(df_stats: pd.DataFrame, n: int | None = None) -> None:
+def show(
+    df_stats: pd.DataFrame,
+    n: int | None = None,
+    column: str | None = None,
+    sort_values: bool = False,
+) -> None:
     """Display the DataFrame in a stylized format, focusing on key columns."""
     df_stats.style.set_table_styles(
         [{"selector": "th", "props": [("font-size", "12pt")]}]
     ).background_gradient(cmap="viridis")
-    df_display = df_stats[["name", "artist", "album", "added_by", "added_at"]]
+    column_list = ["name", "artist", "album", "added_by", "added_at"]
+    if column:
+        column_list = [column, *column_list]
+    df_display = df_stats[column_list]
+    if sort_values:
+        df_display = df_display.sort_values(by=column, ascending=False)
     display(df_display.head(n)) if n else display(df_display)
 
 
@@ -85,3 +98,77 @@ def create_wordcloud_from_series(data: pd.Series, title: str | None = None) -> N
             bbox={"facecolor": "white", "alpha": 0.7},
             transform=plt.gca().transAxes,
         )
+
+
+def create_boxplot(df: pd.DataFrame, column: str, print_top: bool = False) -> None:
+    """
+    Create an interactive Plotly plot for a specified column in a DataFrame.
+
+    Parameters
+    ----------
+    df (DataFrame): The DataFrame containing the data.
+    column_of_interest (str): The column name for which the plot will be created.
+    adder_column (str): The column name indicating who added the track.
+    """
+    # Creating a Plotly figure
+    fig = go.Figure()
+
+    # Get list of adders
+    adders = df["added_by"].unique()
+
+    # Add track info to DataFrame
+    df["track_info"] = df["name"] + " by " + df["artist"]
+
+    # Define color palette for the plots
+    color_palette = px.colors.qualitative.Plotly
+
+    # Adding boxplots and scatter plots for each adder
+    for i, adder in enumerate(adders, 1):
+        # Filter by adder
+        df_adder = df[df["added_by"] == adder]
+
+        # Create boxplot
+        fig.add_trace(
+            go.Box(
+                y=df_adder[column],
+                name=adder,
+                boxpoints=False,
+                x=[i] * len(df_adder),
+                hoverinfo="none",
+                marker_color=color_palette[i % len(color_palette)],
+            )
+        )
+
+        # Create scatter plot points with jitter
+        jittered_x = np.random.Generator(np.random.PCG64()).normal(i, 0.1, size=len(df_adder))
+        fig.add_trace(
+            go.Scatter(
+                x=jittered_x,
+                y=df_adder[column],
+                mode="markers",
+                name=f"{adder} points",
+                text=df_adder["track_info"],
+                marker={"size": 6, "color": "grey", "opacity": 0.5},
+            )
+        )
+
+        # Depict top tracks by the column of interest
+        if print_top:
+            print(f"Top 5 {column} added by {adder}:")
+            show(df_adder, n=5, column=column, sort_values=True)
+
+    # Update layout
+    fig.update_layout(
+        title=column,
+        xaxis={
+            "title": "Added By",
+            "tickmode": "array",
+            "tickvals": list(range(1, len(adders) + 1)),
+            "ticktext": adders,
+        },
+        yaxis={"title": column},
+        showlegend=False,
+    )
+
+    # Show plot
+    fig.show()
