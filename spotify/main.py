@@ -4,9 +4,12 @@ import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 from utils import (
     calculate_first_playlist_track_overlap_percentage,
-    calculate_total_overlap_percentage,
-    fetch_playlist_details,
+    create_logger,
+    enrich_playlist_stats,
+    fetch_playlist_tracks,
+    initialize_playlist_stats,
     load_credentials,
+    update_playlist_stats,
 )
 
 
@@ -21,19 +24,35 @@ def main() -> None:
     sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 
     # Playlist: Pallen 2023
-    playlist_uri = "https://open.spotify.com/playlist/2flYqzsxSNSIHjCNCphCMw?si=6408cf90576944be"
+    # playlist_uri = "https://open.spotify.com/playlist/2flYqzsxSNSIHjCNCphCMw?si=6408cf90576944be"  # Pallen 2023
+    playlist_uri = "https://open.spotify.com/playlist/6xbkFqSuhmYeG1TRrvpoTC?si=b57441a2ce844789"  # 2023 (albums)
+    # playlist_uri = "https://open.spotify.com/playlist/16aMi5Mu9PMss7NdZTnPcr?si=883603597e7b46e7"  # 2023 (tracks)
 
-    # Fetch playlist details
-    df_playlist = fetch_playlist_details(sp, playlist_uri)
-    df_playlist.to_csv("./data/playlist_stats.csv", index=False)
+    # Set export filename
+    # file_name = "playlist_stats"
+    file_name = "playlist_stats_2023_albums"
+    # file_name = "playlist_stats_2023_tracks"
 
-    # Compare playlists
-    total_overlap = calculate_total_overlap_percentage(
-        sp=sp,
-        first_playlist_uri=playlist_uri,
-        second_playlist_uri="https://open.spotify.com/playlist/4gjdA4c6B0YB7S5GmgxLEk?si=070cab20524f4ddc",
-    )
-    print(f"Overlap: {total_overlap:.2f}%")
+    # Fetch playlist stats
+    logger.info("Fetching playlist tracks...")
+    tracks = fetch_playlist_tracks(sp, playlist_uri)
+    logger.info(f"Fetched {len(tracks)} tracks.")
+
+    # Initialize dataframe of playlist stats
+    logger.info("Initializing dataframe of playlist stats...")
+    df_playlist = initialize_playlist_stats(tracks)
+    logger.info(f"Initialized dataframe with {len(df_playlist)} tracks.")
+
+    # Update playlist stats with previously exported data
+    logger.info("Updating dataframe with previously loaded data...")
+    df_playlist = update_playlist_stats(df_playlist, file_name)
+
+    # Enrich playlist stats (e.g. audio features) - iterative -> slow
+    df_playlist = enrich_playlist_stats(sp, df_playlist)
+
+    # Export playlist stats
+    df_playlist.to_csv(f"./data/{file_name}.csv", index=False)
+    logger.info(f"Exported playlist stats to ./data/{file_name}.csv")
 
     # Compare playlists
     playlist_hype = calculate_first_playlist_track_overlap_percentage(
@@ -41,8 +60,9 @@ def main() -> None:
         first_playlist_uri="https://open.spotify.com/playlist/4gjdA4c6B0YB7S5GmgxLEk?si=070cab20524f4ddc",
         second_playlist_uri=playlist_uri,
     )
-    print(f"Playlist hype (Pallen 2023 vs. 3voor12 SvhJ 2023): {playlist_hype:.2f}%")
+    print(f"Playlist hype (playlist vs. 3voor12 SvhJ 2023): {playlist_hype:.2f}%")
 
 
 if __name__ == "__main__":
+    logger = create_logger("spotify")
     main()

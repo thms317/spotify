@@ -30,6 +30,7 @@ ignore = [
     "COM812",   # "Missing trailing comma." Ignored since it conflicts with the formatter.
     "ISC001",   # "Implicit string concatenation." Ignored since it conflicts with the formatter.
     # project-specific exceptions
+    "G004",     # "Logging statement uses f-string." I use f-strings in logging statements.
 ]
 namespace-packages = ["./notebooks/"]
 extend-include = ["*.ipynb"]

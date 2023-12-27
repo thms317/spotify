@@ -23,7 +23,7 @@ repos:
         -   --config=pyproject.toml
         types_or: [python, jupyter]
     repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.1.8
+    rev: v0.1.9
 -   hooks:
     -   id: mypy
         args:
@@ -33,4 +33,4 @@ repos:
         -   types-toml
         -   types-pytz
     repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.7.1
+    rev: v1.8.0
