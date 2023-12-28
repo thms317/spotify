@@ -100,6 +100,7 @@ def parse_track_details(track: dict[Any, Any]) -> dict[str, Any]:
         "track_uri": track["track"]["uri"],
         "artist_uris": artists_uris,
         "artist_names": artists_names,
+        "enriched": False,
     }
 
 
@@ -141,8 +142,6 @@ def fetch_artist_details(sp: Spotify, track: pd.Series) -> dict[str, Any]:
 def enrich_playlist_stats(sp: Spotify, df_playlist: pd.DataFrame) -> pd.DataFrame:
     """Iterate dataframe to enrich dataset with artist details and audio features."""
     logger = logging.getLogger("spotify")
-    # Drop previously enriched rows if any
-    # df_playlist_subset = df_playlist[df_playlist["enriched"].isna()]
     # Initialize empty list to store enriched rows
     df_enriched = pd.DataFrame()
     # Iterate dataframe
@@ -203,20 +202,7 @@ def fetch_audio_features(sp: Spotify, track: pd.Series) -> dict[str, Any]:
     }
 
 
-def calculate_total_overlap_percentage(
-    sp: Spotify, first_playlist_uri: str, second_playlist_uri: str
-) -> float:
-    """Calculate the total overlap percentage between two playlists, considering the unique tracks in both."""
-    first_playlist_track_ids = get_playlist_track_uris(sp, first_playlist_uri)
-    second_playlist_track_ids = get_playlist_track_uris(sp, second_playlist_uri)
-    common_tracks = set(first_playlist_track_ids).intersection(second_playlist_track_ids)
-    # Calculate the total number of unique tracks in both playlists
-    total_unique_tracks = len(set(first_playlist_track_ids + second_playlist_track_ids))
-    # Calculate the overlap percentage: common tracks / total unique tracks in both playlists
-    return len(common_tracks) / total_unique_tracks * 100
-
-
-def calculate_first_playlist_track_overlap_percentage(
+def calculate_playlist_overlap(
     sp: Spotify, first_playlist_uri: str, second_playlist_uri: str
 ) -> float:
     """Calculate the percentage of tracks from the first playlist that are also present in the second playlist."""

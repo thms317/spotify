@@ -3,7 +3,6 @@
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 from utils import (
-    calculate_first_playlist_track_overlap_percentage,
     create_logger,
     enrich_playlist_stats,
     fetch_playlist_tracks,
@@ -24,13 +23,13 @@ def main() -> None:
     sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 
     # Playlist: Pallen 2023
-    # playlist_uri = "https://open.spotify.com/playlist/2flYqzsxSNSIHjCNCphCMw?si=6408cf90576944be"  # Pallen 2023
-    playlist_uri = "https://open.spotify.com/playlist/6xbkFqSuhmYeG1TRrvpoTC?si=b57441a2ce844789"  # 2023 (albums)
+    playlist_uri = "https://open.spotify.com/playlist/2flYqzsxSNSIHjCNCphCMw?si=6408cf90576944be"  # Pallen 2023
+    # playlist_uri = "https://open.spotify.com/playlist/6xbkFqSuhmYeG1TRrvpoTC?si=b57441a2ce844789"  # 2023 (albums)
     # playlist_uri = "https://open.spotify.com/playlist/16aMi5Mu9PMss7NdZTnPcr?si=883603597e7b46e7"  # 2023 (tracks)
 
     # Set export filename
-    # file_name = "playlist_stats"
-    file_name = "playlist_stats_2023_albums"
+    file_name = "playlist_stats"
+    # file_name = "playlist_stats_2023_albums"
     # file_name = "playlist_stats_2023_tracks"
 
     # Fetch playlist stats
@@ -53,14 +52,6 @@ def main() -> None:
     # Export playlist stats
     df_playlist.to_csv(f"./data/{file_name}.csv", index=False)
     logger.info(f"Exported playlist stats to ./data/{file_name}.csv")
-
-    # Compare playlists
-    playlist_hype = calculate_first_playlist_track_overlap_percentage(
-        sp=sp,
-        first_playlist_uri="https://open.spotify.com/playlist/4gjdA4c6B0YB7S5GmgxLEk?si=070cab20524f4ddc",
-        second_playlist_uri=playlist_uri,
-    )
-    print(f"Playlist hype (playlist vs. 3voor12 SvhJ 2023): {playlist_hype:.2f}%")
 
 
 if __name__ == "__main__":
