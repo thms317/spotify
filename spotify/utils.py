@@ -142,6 +142,9 @@ def fetch_artist_details(sp: Spotify, track: pd.Series) -> dict[str, Any]:
 def enrich_playlist_stats(sp: Spotify, df_playlist: pd.DataFrame) -> pd.DataFrame:
     """Iterate dataframe to enrich dataset with artist details and audio features."""
     logger = logging.getLogger("spotify")
+    if len(df_playlist) == sum(df_playlist["enriched"]):
+        logger.info("All tracks have been enriched.")
+        return df_playlist
     # Initialize empty list to store enriched rows
     df_enriched = pd.DataFrame()
     # Iterate dataframe
@@ -168,22 +171,17 @@ def enrich_playlist_stats(sp: Spotify, df_playlist: pd.DataFrame) -> pd.DataFram
             msg = f"Error processing track {track['name']} - {track['artist']}: {e}"
             logger.exception(msg)
             continue
-    # left join the enriched dataframe with the original dataframe
     return df_enriched.T.reset_index().drop(["index"], axis=1)
-    # df_enriched = df_enriched.T.reset_index().drop(["index"], axis=1)
-    # # Merge the enriched dataframe with the original dataframe
-    # df_playlist = df_playlist.merge(
-    #     df_enriched, how="left", on=["track_id"], suffixes=("_outdated", "")
-    # )
-    # logger.info(f"Enriched dataframe with {len(df_enriched)} tracks.")
-    # # Drop original columns, that were updated
-    # return df_playlist[[col for col in df_playlist.columns if not col.endswith("_outdated")]]
 
 
 def fetch_audio_features(sp: Spotify, track: pd.Series) -> dict[str, Any]:
     """Fetch audio features by iterating the dataset."""
     logger = logging.getLogger("spotify")
-    audio_features = sp.audio_features(track["track_uri"])[0]
+    try:
+        audio_features = sp.audio_features(track["track_uri"])[0]
+    except Exception as e:  # noqa: BLE001
+        logger.info(f"Response error for: {track['name']} - {track['artist']} - {e}")
+        return {}
     if not audio_features:
         logger.info(f"Audio features not found for: {track['name']} - {track['artist']}")
     return {
@@ -243,8 +241,9 @@ def update_playlist_stats(df_playlist: pd.DataFrame, file_name: str) -> pd.DataF
         try:
             # Drop rows that have not yet been enriched
             df_enriched_outdated = df_outdated.dropna(subset=["enriched"])
-            logger.info(f"Previously enriched tracks: {len(df_enriched_outdated)}")
-            logger.info(f"Unenriched tracks: {len(df_outdated[df_outdated['enriched'].isna()])}")
+            logger.info(
+                f"Previously enriched tracks: {len(df_enriched_outdated)}/{len(df_playlist)}"
+            )
             # Update playlist stats with the existing enriched data
             df_playlist = df_playlist.merge(
                 df_outdated,
@@ -252,7 +251,11 @@ def update_playlist_stats(df_playlist: pd.DataFrame, file_name: str) -> pd.DataF
                 on=["track_id"],
                 suffixes=("", "_outdated"),
             )
-            # Drop columns with the _outdated suffixes
+            # Drop/rename enriched columns
+            df_playlist = df_playlist.drop(["enriched"], axis=1).rename(
+                columns={"enriched_outdated": "enriched"}
+            )
+            # Drop outdated columns
             return df_playlist[
                 [col for col in df_playlist.columns if not col.endswith("_outdated")]
             ]

@@ -74,7 +74,7 @@ def top_items_added_by(
     return contributors_stats
 
 
-def create_wordcloud_from_series(data: pd.Series, title: str | None = None) -> None:
+def create_wordcloud_from_series(data: pd.Series, title: str | None = None) -> plt.Figure:
     """Generate a word cloud from a pandas Series where each value is a count."""
     # Creating a word cloud
     wordcloud = WordCloud(
@@ -82,12 +82,11 @@ def create_wordcloud_from_series(data: pd.Series, title: str | None = None) -> N
     ).generate_from_frequencies(data)
 
     # Plotting the WordCloud
-    plt.figure(figsize=(10, 8))
-    plt.imshow(wordcloud, interpolation="bilinear")
-    plt.axis("off")
-    # Add title in the left upper corner above the plot, in red
+    fig, ax = plt.subplots(figsize=(10, 8))
+    ax.imshow(wordcloud, interpolation="bilinear")
+    ax.axis("off")
     if title:
-        plt.text(
+        ax.text(
             0.5,
             1.05,
             title,
@@ -96,11 +95,12 @@ def create_wordcloud_from_series(data: pd.Series, title: str | None = None) -> N
             fontsize=30,
             color="red",
             bbox={"facecolor": "white", "alpha": 0.7},
-            transform=plt.gca().transAxes,
+            transform=ax.transAxes,
         )
+    return fig
 
 
-def create_boxplot(df: pd.DataFrame, column: str, print_top: bool = False) -> None:
+def create_boxplot(df: pd.DataFrame, column: str, print_top: bool = False) -> go.Figure:
     """
     Create an interactive Plotly plot for a specified column in a DataFrame.
 
@@ -171,4 +171,83 @@ def create_boxplot(df: pd.DataFrame, column: str, print_top: bool = False) -> No
     )
 
     # Show plot
-    fig.show()
+    # fig.show()
+
+    return fig
+
+
+def average_per_person(df: pd.DataFrame, column: str) -> dict[str, str]:
+    """Calculate the average value of a column per person."""
+    return {
+        person: str(round(df[df["added_by"] == person][column].mean(), 2))
+        for person in df["added_by"].unique()
+    }
+
+
+def transform_track_duration(track_duration_ms: float) -> str:
+    """Transform track duration from ms to minutes."""
+    duration_min = track_duration_ms / 60000
+    duration_sec = (duration_min - int(duration_min)) * 60
+    return f"{int(duration_min)}:{int(duration_sec)}"
+
+
+def create_2d_scatter_plot(
+    df: pd.DataFrame, x_column: str, y_column: str, hover_label_column: str, adder_column: str
+) -> go.Figure:
+    """
+    Create an interactive 2D scatter plot using Plotly with different colors for each person who added a track.
+
+    Parameters
+    ----------
+    df : DataFrame
+        The DataFrame containing the data.
+    x_column : str
+        The column name for the x-axis.
+    y_column : str
+        The column name for the y-axis.
+    hover_label_column : str
+        The column name whose data will be shown on hover.
+    adder_column : str
+        The column name indicating who added the track.
+    """
+    # Creating a Plotly figure
+    fig = go.Figure()
+
+    # Define color palette for the plots
+    color_palette = px.colors.qualitative.Plotly
+
+    # Get list of adders
+    adders = df[adder_column].unique()
+
+    # Adding scatter plots for each adder
+    for i, adder in enumerate(adders):
+        # Filter by adder
+        df_adder = df[df[adder_column] == adder]
+
+        # Add scatter plot points
+        fig.add_trace(
+            go.Scatter(
+                x=df_adder[x_column],
+                y=df_adder[y_column],
+                mode="markers",
+                name=adder,  # This will be used for the legend
+                text=df_adder[hover_label_column],
+                marker={
+                    "size": 7,
+                    "color": color_palette[i % len(color_palette)],
+                    "opacity": 0.8,
+                    "line": {"width": 1, "color": "DarkSlateGrey"},
+                },
+            )
+        )
+
+    # Update layout
+    fig.update_layout(
+        title=f"{y_column} vs {x_column}",
+        xaxis={"title": x_column},
+        yaxis={"title": y_column},
+        hovermode="closest",
+        legend_title=adder_column,
+    )
+
+    return fig

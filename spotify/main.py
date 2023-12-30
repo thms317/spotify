@@ -15,7 +15,8 @@ from utils import (
 def main() -> None:
     """Extract song statistics from Spotify playlist."""
     # Load credentials and authenticate with Spotify
-    credentials = load_credentials("spotify")
+    credentials = load_credentials("spotify")  # "spotify" / "spotify-2" / "spotify-sandra"
+    print(credentials["SPOTIPY_CLIENT_ID"])
     client_credentials_manager = SpotifyClientCredentials(
         client_id=credentials["SPOTIPY_CLIENT_ID"],
         client_secret=credentials["SPOTIPY_CLIENT_SECRET"],
@@ -26,11 +27,13 @@ def main() -> None:
     playlist_uri = "https://open.spotify.com/playlist/2flYqzsxSNSIHjCNCphCMw?si=6408cf90576944be"  # Pallen 2023
     # playlist_uri = "https://open.spotify.com/playlist/6xbkFqSuhmYeG1TRrvpoTC?si=b57441a2ce844789"  # 2023 (albums)
     # playlist_uri = "https://open.spotify.com/playlist/16aMi5Mu9PMss7NdZTnPcr?si=883603597e7b46e7"  # 2023 (tracks)
+    # playlist_uri = "https://open.spotify.com/playlist/1DTzz7Nh2rJBnyFbjsH1Mh?si=3c121eb372264544"  # top 2000
 
     # Set export filename
     file_name = "playlist_stats"
     # file_name = "playlist_stats_2023_albums"
     # file_name = "playlist_stats_2023_tracks"
+    # file_name = "playlist_stats_top_2000"
 
     # Fetch playlist stats
     logger.info("Fetching playlist tracks...")
