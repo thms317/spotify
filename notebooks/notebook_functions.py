@@ -260,6 +260,8 @@ def sort_dataframe(df: pd.DataFrame, column: str, show_column: str | None = None
         show_column = column
     # Sort values
     df_sorted = df.sort_values(by=column, ascending=False)
+    # Drop None values
+    df_sorted = df_sorted.dropna(subset=[show_column])
     # Concatenate the head and tail of the DataFrame
     df_head = df_sorted[["artist", "name", show_column]].head()
     df_tail = df_sorted[["artist", "name", show_column]].tail()
