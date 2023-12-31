@@ -48,11 +48,11 @@ def export_to_json(data: dict[Any, Any] | list[dict[Any, Any]], name: str) -> No
         json.dump(data, f)
 
 
-def transform_track_duration(track_duration_ms: int) -> str:
-    """Transform track duration from ms to minutes."""
-    duration_min = track_duration_ms / 60000
-    duration_sec = (duration_min - int(duration_min)) * 60
-    return f"{int(duration_min)}:{int(duration_sec)}"
+def transform_track_duration(track_duration_ms: float) -> str:
+    """Transform track duration from ms to minutes:seconds."""
+    duration_min = int(track_duration_ms // 60000)
+    duration_sec = int((track_duration_ms % 60000) // 1000)
+    return f"{duration_min}:{duration_sec:02}"  # 2 digits for seconds
 
 
 def fetch_playlist_tracks(sp: Spotify, playlist_uri: str) -> list[dict[str, Any] | None]:
@@ -238,6 +238,8 @@ def update_playlist_stats(df_playlist: pd.DataFrame, file_name: str) -> pd.DataF
     try:
         # Load previously exported (enriched) data
         df_outdated = pd.read_csv(f"./data/{file_name}.csv")
+        # Drop duplicate rows
+        df_outdated = df_outdated.drop_duplicates(subset=["track_id"])
         try:
             # Drop rows that have not yet been enriched
             df_enriched_outdated = df_outdated.dropna(subset=["enriched"])

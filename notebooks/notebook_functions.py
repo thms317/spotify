@@ -185,10 +185,10 @@ def average_per_person(df: pd.DataFrame, column: str) -> dict[str, str]:
 
 
 def transform_track_duration(track_duration_ms: float) -> str:
-    """Transform track duration from ms to minutes."""
-    duration_min = track_duration_ms / 60000
-    duration_sec = (duration_min - int(duration_min)) * 60
-    return f"{int(duration_min)}:{int(duration_sec)}"
+    """Transform track duration from ms to minutes:seconds."""
+    duration_min = int(track_duration_ms // 60000)
+    duration_sec = int((track_duration_ms % 60000) // 1000)
+    return f"{duration_min}:{duration_sec:02}"  # 2 digits for seconds
 
 
 def create_2d_scatter_plot(
@@ -251,3 +251,21 @@ def create_2d_scatter_plot(
     )
 
     return fig
+
+
+def sort_dataframe(df: pd.DataFrame, column: str, show_column: str | None = None) -> pd.DataFrame:
+    """Sort a DataFrame by a specified column and show the top and bottom 5 rows."""
+    # If show_column is not specified, use column
+    if not show_column:
+        show_column = column
+    # Sort values
+    df_sorted = df.sort_values(by=column, ascending=False)
+    # Concatenate the head and tail of the DataFrame
+    df_head = df_sorted[["artist", "name", show_column]].head()
+    df_tail = df_sorted[["artist", "name", show_column]].tail()
+    # Create a separator DataFrame
+    df_separator = pd.DataFrame(
+        [["...", "...", "..."]], columns=["artist", "name", show_column], index=[""]
+    )
+    # Combine head, separator, and tail
+    return pd.concat([df_head, df_separator, df_tail])

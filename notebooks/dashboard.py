@@ -7,6 +7,7 @@ from notebook_functions import (
     create_2d_scatter_plot,
     create_boxplot,
     create_wordcloud_from_series,
+    sort_dataframe,
     top_items_added_by,
     transform_track_duration,
 )
@@ -110,6 +111,10 @@ for name, value in avg.items():
         label=f"Average track duration added by {name}",
         value=transform_track_duration(float(value)),
     )
+# Depict head/tail of dataframe
+df_stats_sorted = sort_dataframe(df_stats, "duration_ms", "duration")
+st.dataframe(df_stats_sorted)
+
 
 # Track popularity
 fig = create_boxplot(df_stats, "track_popularity")
@@ -121,6 +126,9 @@ for name, value in avg.items():
         label=f"Average track popularity added by {name}",
         value=value,
     )
+# Depict head/tail of dataframe
+df_stats_sorted = sort_dataframe(df_stats, "track_popularity")
+st.dataframe(df_stats_sorted)
 
 # Artist popularity
 fig = create_boxplot(df_stats, "artists_avg_popularity")
@@ -132,6 +140,9 @@ for name, value in avg.items():
         label=f"Average artist popularity added by {name}",
         value=value,
     )
+# Depict head/tail of dataframe
+df_stats_sorted = sort_dataframe(df_stats, "artists_avg_popularity")
+st.dataframe(df_stats_sorted)
 
 # Energy
 fig = create_boxplot(df_stats, "energy")
@@ -143,6 +154,9 @@ for name, value in avg.items():
         label=f"Average track energy added by {name}",
         value=value,
     )
+# Depict head/tail of dataframe
+df_stats_sorted = sort_dataframe(df_stats, "energy")
+st.dataframe(df_stats_sorted)
 
 # Acousticness
 fig = create_boxplot(df_stats, "acousticness")
@@ -154,6 +168,9 @@ for name, value in avg.items():
         label=f"Average track acousticness added by {name}",
         value=value,
     )
+# Depict head/tail of dataframe
+df_stats_sorted = sort_dataframe(df_stats, "acousticness")
+st.dataframe(df_stats_sorted)
 
 # Instrumentalness
 fig = create_boxplot(df_stats, "instrumentalness")
@@ -165,6 +182,9 @@ for name, value in avg.items():
         label=f"Average track instrumentalness added by {name}",
         value=value,
     )
+# Depict head/tail of dataframe
+df_stats_sorted = sort_dataframe(df_stats, "instrumentalness")
+st.dataframe(df_stats_sorted)
 
 # Tempo
 fig = create_boxplot(df_stats, "tempo")
@@ -176,6 +196,9 @@ for name, value in avg.items():
         label=f"Average track tempo added by {name}",
         value=value,
     )
+# Depict head/tail of dataframe
+df_stats_sorted = sort_dataframe(df_stats, "tempo")
+st.dataframe(df_stats_sorted)
 
 # 2D Scatter plot
 fig = create_2d_scatter_plot(
