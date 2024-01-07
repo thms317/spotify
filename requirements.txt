@@ -1,0 +1,11 @@
+ipython==8.18.1
+matplotlib==3.8.2
+numpy==1.26.2
+pandas==2.1.4
+plotly==5.18.0
+seaborn==0.13.0
+setuptools==68.2.2
+spotipy==2.23.0
+streamlit==1.29.0
+toml==0.10.2
+wordcloud==1.9.3
