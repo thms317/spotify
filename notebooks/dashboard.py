@@ -213,5 +213,5 @@ st.metric(
 )
 
 # 3voor12 overlap table
-df_overlap = pd.read_csv("./data/3voor12_overlap.csv")
+df_overlap = pd.read_csv("./data/3voor12_overlap.csv", index_col="Unnamed: 0")
 st.dataframe(df_overlap)
